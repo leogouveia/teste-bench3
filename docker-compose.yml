@@ -1,0 +1,76 @@
+version: "3"
+services:
+    nginx:
+        build:
+            dockerfile: Dockerfile_nginx
+        container_name: bench3-nginx
+        ports:
+            - "8080:80"
+            - "8081:81"
+        volumes:
+            # - ./nginx:/nginx
+            - ./nginx:/etc/nginx/conf.d
+            - ./laravel:/var/www/laravel
+        depends_on:
+            - php-laravel
+            - node-express
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.1"
+                    memory: 512M
+
+    db:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: sen567Sx
+            PGDATA: /var/lib/postgresql/data/pgdata
+        volumes:
+            - ./temp:/hosttmp
+            - ./db-pg:/docker-entrypoint-initdb.d
+            - pgdata:/var/lib/postgresql/data
+        ports:
+            - 5433:5432
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.1"
+                    memory: 512M
+
+    php-laravel:
+        build:
+            args:
+                user: leogouveia
+                uid: 1000
+            context: ./
+            dockerfile: Dockerfile_php
+        working_dir: /var/www/laravel/
+        # command:  /usr/bin/composer install && php artisan key:generate
+        volumes:
+            - ./laravel:/var/www/laravel
+        restart: unless-stopped
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.1"
+                    memory: 512M
+
+    node-express:
+        build:
+            context: ./
+            dockerfile: Dockerfile_node_express
+        working_dir: /usr/src/app/
+        volumes:
+            - ./node-express:/usr/src/app
+            - node-express_modules:/usr/src/app/node_modules
+        restart: unless-stopped
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.1"
+                    memory: 512M
+
+volumes:
+    pgdata:
+    node-express_modules:

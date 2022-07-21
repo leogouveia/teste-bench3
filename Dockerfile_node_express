@@ -1,0 +1,16 @@
+FROM node:18
+
+WORKDIR /usr/src/app
+COPY ./node-express/package*.json ./
+
+RUN cat package.json
+RUN npm install
+
+RUN echo $PWD
+RUN ls -lah .
+# If you are building your code for production
+# RUN npm ci --only=production
+
+COPY ./node-express .
+
+CMD [ "node", "/usr/src/app/bin/www" ]
