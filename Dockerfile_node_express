@@ -13,4 +13,4 @@ RUN ls -lah .
 
 COPY ./node-express .
 
-CMD [ "node", "/usr/src/app/bin/www" ]
+CMD [ "npm", "run", "start" ]
