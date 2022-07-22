@@ -1,22 +1,10 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('postgres://postgres:sen567Sx@db:5432/db01') // Example for postgres
-
-
-async function connect() {
-
-    try {
-        await sequelize.authenticate();
-        console.log("Connection has been established successfully.")
-        return sequelize;
-    } catch {
-        console.error("Unable to connect to database.", error)
-        return false;
+module.exports = new Sequelize('postgres://postgres:sen567Sx@db:5432/db01', {
+    pool: {
+        max: 5,
+        min: 1,
+        acquire: 30000,
+        idle: 10000
     }
-}
-
-
-module.exports = {
-    sequelize,
-    connect,
-}
+}) // Example for postgres;
