@@ -32,7 +32,7 @@ services:
             POSTGRES_PASSWORD: sen567Sx
             PGDATA: /var/lib/postgresql/data/pgdata
         volumes:
-            - ./temp:/hosttmp
+            # - ./db/pg/temp:/hosttmp
             - ./db-pg:/docker-entrypoint-initdb.d
             - pgdata:/var/lib/postgresql/data
         ports:
@@ -60,6 +60,8 @@ services:
                 limits:
                     cpus: "0.1"
                     memory: 512M
+        depends_on:
+            - db
 
     node-express:
         build:
@@ -75,6 +77,9 @@ services:
                 limits:
                     cpus: "0.1"
                     memory: 512M
+        depends_on:
+                - db
+
     go-gin:
         build:
             context: ./
@@ -109,6 +114,8 @@ services:
                 limits:
                     cpus: "0.1"
                     memory: 512M
+        depends_on:
+            - db
 volumes:
     pgdata:
     node-express_modules:
