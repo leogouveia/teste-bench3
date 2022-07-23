@@ -30,9 +30,7 @@ RUN chown $user:$user /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www
-COPY ./laravel /var/www/laravel
-RUN chmod 775 -R /var/www/laravel/storage
 COPY ./php-lumen /var/www/lumen
-RUN chmod 775 /var/www/lumen
+RUN chmod 775 /var/www/lumen/storage
 
 USER $user

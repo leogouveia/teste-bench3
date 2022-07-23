@@ -19,6 +19,12 @@ func ConnectDatabase() {
 	if err != nil {
 		log.Panic("Error connecting to database")
 	}
+
+	sqlDB, err := db.DB()
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+
 	DB = db
 
 }

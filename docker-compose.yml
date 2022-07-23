@@ -8,14 +8,17 @@ services:
             - "8080:80"
             - "8081:81"
             - "8082:82"
+            - "8083:83"
         volumes:
             # - ./nginx:/nginx
             - ./nginx:/etc/nginx/conf.d
             - ./laravel:/var/www/laravel
+            - ./php-lumen:/var/www/lumen
         depends_on:
             - php-laravel
             - node-express
             - go-gin
+            - php-lumen
         deploy:
             resources:
                 limits:
@@ -88,6 +91,24 @@ services:
                     memory: 512M
         depends_on:
             - db
+
+    php-lumen:
+        build:
+            args:
+                user: leogouveia
+                uid: 1000
+            context: ./
+            dockerfile: Dockerfile_php_lumen
+        working_dir: /var/www/lumen/
+        # command:  /usr/bin/composer install && php artisan key:generate
+        volumes:
+            - ./php-lumen:/var/www/lumen
+        restart: unless-stopped
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.1"
+                    memory: 512M
 volumes:
     pgdata:
     node-express_modules:
