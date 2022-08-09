@@ -1,121 +1,147 @@
 version: "3"
 services:
-    nginx:
-        build:
-            dockerfile: Dockerfile_nginx
-        container_name: bench3-nginx
-        ports:
-            - "8080:80"
-            - "8081:81"
-            - "8082:82"
-            - "8083:83"
-        volumes:
-            # - ./nginx:/nginx
-            - ./nginx:/etc/nginx/conf.d
-            - ./laravel:/var/www/laravel
-            - ./php-lumen:/var/www/lumen
-        depends_on:
-            - php-laravel
-            - node-express
-            - go-gin
-            - php-lumen
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.1"
-                    memory: 512M
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile_nginx
+    container_name: bench3-nginx
+    ports:
+      # - "8080:80"
+      - "8081:81"
+      # - "8082:82"
+      # - "8083:83"
+      - "8084:84"
+    volumes:
+      # - ./nginx:/nginx
+      - ./nginx:/etc/nginx/conf.d
+      # - ./laravel:/var/www/laravel
+      # - ./php-lumen:/var/www/lumen
+      # - ./node-fastify:/var/www/fastify
+      - ./node-express:/var/www/express
+    depends_on:
+      - db
+      # - php-laravel
+      - node-express
+      #   - go-gin
+      #   - php-lumen
+      - node-fastify
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 512M
 
-    db:
-        image: postgres
-        restart: always
-        environment:
-            POSTGRES_PASSWORD: sen567Sx
-            PGDATA: /var/lib/postgresql/data/pgdata
-        volumes:
-            # - ./db/pg/temp:/hosttmp
-            - ./db-pg:/docker-entrypoint-initdb.d
-            - pgdata:/var/lib/postgresql/data
-        ports:
-            - 5433:5432
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.1"
-                    memory: 512M
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: sen567Sx
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      # - ./db/pg/temp:/hosttmp
+      - ./db-pg:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 512M
 
-    php-laravel:
-        build:
-            args:
-                user: leogouveia
-                uid: 1000
-            context: ./
-            dockerfile: Dockerfile_php
-        working_dir: /var/www/laravel/
-        # command:  /usr/bin/composer install && php artisan key:generate
-        volumes:
-            - ./laravel:/var/www/laravel
-        restart: unless-stopped
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.1"
-                    memory: 512M
-        depends_on:
-            - db
+  # php-laravel:
+  #   build:
+  #     args:
+  #       user: leogouveia
+  #       uid: 1000
+  #     context: ./
+  #     dockerfile: Dockerfile_php
+  #   working_dir: /var/www/laravel/
+  #   # command:  /usr/bin/composer install && php artisan key:generate
+  #   volumes:
+  #     - ./laravel:/var/www/laravel
+  #   restart: unless-stopped
+  #   command: php-fpm8
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: "0.1"
+  #         memory: 512M
+  #   depends_on:
+  #     - db
 
-    node-express:
-        build:
-            context: ./
-            dockerfile: Dockerfile_node_express
-        working_dir: /usr/src/app/
-        volumes:
-            - ./node-express:/usr/src/app
-            - node-express_modules:/usr/src/app/node_modules
-        restart: unless-stopped
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.1"
-                    memory: 512M
-        depends_on:
-                - db
+  node-express:
+    build:
+      context: ./
+      dockerfile: Dockerfile_node_express
+    working_dir: /usr/src/app/
+    volumes:
+      - ./node-express:/usr/src/app
+      - node-express_modules:/usr/src/app/node_modules
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 512M
+    depends_on:
+      - db
 
-    go-gin:
-        build:
-            context: ./
-            dockerfile: Dockerfile_go_gin
-        working_dir: /usr/src/app/
-        volumes:
-            - ./go-gin:/usr/src/app
-        
-        restart: unless-stopped
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.1"
-                    memory: 512M
-        depends_on:
-            - db
+  node-fastify:
+    build:
+      context: ./node-fastify
+      dockerfile: Dockerfile_node_fastify
+    working_dir: /usr/src/app/
+    ports:
+      - 3000:3000
+    volumes:
+      - ./node-fastify:/usr/src/app
+      # - node-fastify_modules:/usr/src/app/node_modules
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 512M
+    depends_on:
+      - db
 
-    php-lumen:
-        build:
-            args:
-                user: leogouveia
-                uid: 1000
-            context: ./
-            dockerfile: Dockerfile_php_lumen
-        working_dir: /var/www/lumen/
-        # command:  /usr/bin/composer install && php artisan key:generate
-        volumes:
-            - ./php-lumen:/var/www/lumen
-        restart: unless-stopped
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.1"
-                    memory: 512M
-        depends_on:
-            - db
+#   go-gin:
+#     build:
+#       context: ./
+#       dockerfile: Dockerfile_go_gin
+#     working_dir: /usr/src/app/
+#     volumes:
+#       - ./go-gin:/usr/src/app
+
+#     restart: unless-stopped
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: "0.1"
+#           memory: 512M
+#     depends_on:
+#       - db
+#   php-lumen:
+#     build:
+#       args:
+#         user: leogouveia
+#         uid: 1000
+#       context: ./
+#       dockerfile: Dockerfile_php_lumen
+#     working_dir: /var/www/lumen/
+#     # command:  /usr/bin/composer install && php artisan key:generate
+#     volumes:
+#       - ./php-lumen:/var/www/lumen
+#     restart: unless-stopped
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: "0.1"
+#           memory: 512M
+#     depends_on:
+#       - db
 volumes:
-    pgdata:
-    node-express_modules:
+  pgdata:
+  node-express_modules:
+  node-fastify_modules:

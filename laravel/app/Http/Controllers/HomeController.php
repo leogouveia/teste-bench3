@@ -13,4 +13,9 @@ class HomeController extends Controller
 
         return $clients;
     }
+
+    function info()
+    {
+        return "oi";
+    }
 }
